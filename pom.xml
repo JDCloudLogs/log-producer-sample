@@ -6,9 +6,9 @@
 
     <groupId>com.jdcloud.logs</groupId>
     <artifactId>log-producer-sample</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 
-    <name>JDCloud LOG Producer Sample</name>
+    <name>log-producer-sample</name>
     <url>http://jdcloud.com</url>
     <description>JDCloud LOG Producer Sample</description>
 
@@ -45,7 +45,7 @@
     </distributionManagement>
 
     <properties>
-        <log-producer.version>0.1.0</log-producer.version>
+        <log-producer.version>0.2.0</log-producer.version>
         <logback.version>1.2.3</logback.version>
 
         <maven.compiler.source>6</maven.compiler.source>
@@ -150,7 +150,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.jdcloud.logs.sample.PerformanceSample</mainClass>
+                            <mainClass>com.jdcloud.logs.sample.Application</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <useUniqueVersions>false</useUniqueVersions>

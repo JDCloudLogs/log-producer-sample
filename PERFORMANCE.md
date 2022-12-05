@@ -2,10 +2,11 @@
 
 ## 测试环境
 ### 测试机器
-* CPU：6 CPU，2.6 GHz 六核Intel Core i7
-* MEM：16 GB
-* 内网带宽：5 Gbps
-* OS：macOS Catalina 10.15.7
+* 规格：c.n3.xlarge（4核8GB 计算优化 标准型)
+* CPU：4 CPU，2.6 GHz 六核Intel Core i7
+* MEM：8 GB
+* 内网带宽：1 Mbps
+* OS：Linux version 3.10.0-693.el7.x86_64
 
 ### JDK
 java version "1.8.0_181"
@@ -13,12 +14,12 @@ Java(TM) SE Runtime Environment (build 1.8.0_181-b13)
 Java HotSpot(TM) 64-Bit Server VM (build 25.181-b13, mixed mode)
 
 ### 日志样例
-测试中使用的日志包含 4 个键值对。为了测试数据的顺序，我们给数据增加了一个 sequence 的前缀，sequence 是从1开始自增的数字。单条日志大小约为 580 字节，格式如下：
+测试中使用的日志包含 4 个键值对。为了测试数据的随机性，防止数据压缩比太高，我们给数据增加了一个 sequence 的后缀，sequence 取值范围是 0~单线程发送次数。单条日志大小约为 580 字节，格式如下：
 ``` 
-level:  INFO
-thread:  pool-1-thread-2
-location:  com.jdcloud.logs.producer.core.BatchSender.sendBatch(BatchSender.java:117)
-message:  <sequence>This is a test message,测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789,测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789,测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789,测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789,测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789,测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789
+level:  INFO_<sequence>
+thread:  pool-1-thread-2_<sequence>
+location:  com.jdcloud.logs.producer.core.BatchSender.sendBatch(BatchSender.java:117)_<sequence>
+message:  0测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<sequence>,1测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<sequence>,2测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<sequence>,3测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<sequence>,4测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<sequence>,5测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<sequence>
 ```
 
 ## 测试用例
@@ -33,42 +34,43 @@ message:  <sequence>This is a test message,测试日志_____abcdefghijklmnopqrst
 * JVM 最大堆大小：4 GB
 * 调用`Producer.send()`方法的线程数量：10
 * 每个线程发送日志条数：20,000,000
-* 发送日志总大小：约 108 GB
-* 客户端压缩后大小：约 1.5 GB
+* 发送日志总大小：约 120 GB
+* 客户端压缩后大小：约 13.3 GB
 * 发送日志总条数：200,000,000
 
 ### 调整发送线程数 sendThreads
 将日志缓存总大小 totalSizeInBytes 设置为默认值 104,857,600（即 100 MB），每批次发送的日志字节数 batchSizeInBytes 设置为默认值 2,097,152（即 2 MB），通过调整发送线程数 sendThreads 观察程序性能。
 
 | IO 线程数量 | 原始数据吞吐量 | 压缩后数据吞吐量 | CPU 使用率 |
-| -------- | -------- | -------- | -------- | -------- |
-| 1 | 17.834 MB/s | 0.244 MB/s | 50% |
-| 2 | 35.155 MB/s | 0.440 MB/s | 105% |
-| 4 | 52.562 MB/s | 0.720 MB/s | 540% |
-| 6 | 50.308 MB/s | 0.689 MB/s | 580% |
-| 10 | 35.881 MB/s | 0.492 MB/s | 540% |
+| -------- | -------- | -------- | -------- |
+| 1 | 16.391 MB/s | 1.821 MB/s | 23% |
+| 2 | 33.616 MB/s | 9.400 MB/s | 48% |
+| 4 | 66.123 MB/s | 7.347 MB/s | 101% |
+| 8 | 127.386 MB/s | 14.154 MB/s | 166% |
+| 16 | 205.347 MB/s | 22.816 MB/s | 244% |
+| 32 | 298.335 MB/s | 33.148 MB/s | 355% |
 
 ### 调整日志缓存总大小 totalSizeInBytes
-将发送线程数 sendThreads 设置为4，每批次发送的日志字节数 batchSizeInBytes 设置为默认值 2,097,152（即 2 MB），通过调整日志缓存总大小 totalSizeInBytes 观察程序性能。
+将发送线程数 sendThreads 设置为16，每批次发送的日志字节数 batchSizeInBytes 设置为默认值 2,097,152（即 2 MB），通过调整日志缓存总大小 totalSizeInBytes 观察程序性能。
 
 | totalSizeInBytes | 原始数据吞吐量 | 压缩后数据吞吐量 | CPU 使用率 |
-| -------- | -------- | -------- | -------- | -------- |
-| 26,214,400 | 52.366 MB/s | 0.717 MB/s | 550% |
-| 52,428,800 | 56.320 MB/s | 0.772 MB/s | 540% |
-| 104,857,600 | 52.562 MB/s | 0.720 MB/s | 540% |
-| 209,715,200 | 40.93 MB/s | 0.561 MB/s | 560% |
+| -------- | -------- | -------- | -------- |
+| 26,214,400 | 99.732 MB/s | 11.081 MB/s | 82% |
+| 52,428,800 | 191.779 MB/s | 21.309 MB/s | 188% |
+| 104,857,600 | 205.347 MB/s | 22.816 MB/s | 244% |
+| 209,715,200 | 170.373 MB/s | 18.930 MB/s | 264% |
 
 ### 调整每批次发送的日志字节数 batchSizeInBytes
-将发送线程数 sendThreads 设置为4，日志缓存总大小 totalSizeInBytes 设置为默认值 104,857,600（即 100 MB），通过调整每批次发送的日志字节数 batchSizeInBytes 观察程序性能。
+将发送线程数 sendThreads 设置为16，日志缓存总大小 totalSizeInBytes 设置为默认值 104,857,600（即 100 MB），通过调整每批次发送的日志字节数 batchSizeInBytes 观察程序性能。
 
-| batchSizeInBytes | 原始数据吞吐量 | 压缩后数据吞吐量 | CPU 使用率 | 请求日志服务压缩后大小 | 请求日志服务响应时间 |
-| -------- | -------- | -------- | -------- | -------- |
-| 524,288 | 42.235 MB/s | 0.579 MB/s | 90 % | 8k | 50ms |
-| 1,048,576 | 53.308 MB/s | 0.730 MB/s | 120 % | 16k | 70ms |
-| 2,097,152 | 56.320 MB/s | 0.772 MB/s | 540% | 32k | 110ms |
-| 4,194,304 | 24.027 MB/s | 0.329 MB/s | 550% | 64k | 250ms |
+| batchSizeInBytes | 原始数据吞吐量 | 压缩后数据吞吐量 | CPU 使用率 | 请求日志服务压缩后大小 | 请求日志服务响应时间(ms) |
+| -------- | -------- | -------- | -------- | -------- | -------- |
+| 524,288 | 169.785 MB/s | 17.932 MB/s | 237 % | 582k 61k| avg=48 min=18 max=7113 |
+| 1,048,576 | 184.886 MB/s | 19.486 MB/s | 248 % | 1163k 122k | avg=88 min=14 max=4178 |
+| 2,097,152 | 205.347 MB/s | 22.816 MB/s | 264% | 2328k 245k | avg=162 min=27 max=6581 |
+| 4,194,304 | 193.802 MB/s | 20.396 MB/s | 271% | 4655k 490k | avg=295 min=142 max=5994 |
 
 ## 总结
-1. 增加发送线程数量可以显著提高吞吐量，尤其是当发送线程数少于可用处理器个数时，发送线程数为默认值处理器个数时比较合适。
+1. 增加发送线程数量可以显著提高吞吐量，尤其是当发送线程数少于 可用处理器个数 * 2 时。
 2. 调整日志缓存总大小对吞吐量影响不明显，建议使用默认值100MB。
-3. 调整每批次发送字节数对吞吐量有一定影响，默认值2MB左右比较合适。
+3. 调整每批次发送字节数对吞吐量影响不明显，默认值2MB左右比较合适。
