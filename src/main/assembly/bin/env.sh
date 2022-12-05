@@ -47,6 +47,9 @@ fi
 if [ -n "$BATCH_SIZE_IN_BYTES" ] ;then
     LOG_PRODUCER_OPTS="$LOG_PRODUCER_OPTS -DbatchSizeInBytes=$BATCH_SIZE_IN_BYTES"
 fi
+if [ -n "$SAMPLE_CLASS" ] ;then
+    LOG_PRODUCER_OPTS="$LOG_PRODUCER_OPTS -DsampleClass=$SAMPLE_CLASS"
+fi
 
 #MacOS:-agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849
 #linux:-agentpath:/export/server/jprofiler13/bin/linux-x64/libjprofilerti.so=port=8849
@@ -57,4 +60,3 @@ fi
 echo "LOG_PRODUCER_OPTS: 		 $LOG_PRODUCER_OPTS"
 echo "JPROFILER_OPTS: 			 $JPROFILER_OPTS"
 export JAVA_OPTS="$JAVA_OPTS $JPROFILER_OPTS $LOG_PRODUCER_OPTS"
-
