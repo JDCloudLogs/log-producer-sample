@@ -25,10 +25,10 @@ message:  0测试日志_____abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_0123456789_<se
 ## 测试用例
 
 ### 测试程序说明
-* ProducerConfig.totalSizeInBytes: 默认值 104,857,600（即 100 MB），具体用例中调整
-* ProducerConfig.batchSizeInBytes: 默认值 2,097,152，具体用例中调整
-* ProducerConfig.batchCountThreshold：32768
-* ProducerConfig.batchMillis：2000
+* ProducerConfig.totalSizeInBytes: 日志缓存的内存占用字节数上限，默认值 104,857,600（100 MB），具体用例中调整
+* ProducerConfig.batchSizeInBytes: 每批次发送的日志字节数，默认值 2,097,152（2 MB），具体用例中调整
+* ProducerConfig.batchCountThreshold：每批次发送的日志数，32768
+* ProducerConfig.batchMillis：批次发送时间间隔毫秒数，2000
 * ProducerConfig.sendThreads: 默认值可用处理器个数，具体用例中调整
 * JVM 初始堆大小：4 GB
 * JVM 最大堆大小：4 GB

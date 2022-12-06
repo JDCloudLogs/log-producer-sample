@@ -32,7 +32,7 @@ export MAX_JAVA_HEAP=4096m
 export LOG_LEVEL=DEBUG
 ```
 ### 运行
-运行以下命令会向目标 logTopic 写入约 108 GB 的数据，在非性能测试场景下谨慎运行。
+运行以下命令会向目标 logTopic 写入约 120 GB 的数据，在非性能测试场景下谨慎运行。
 ```
 ./bin/start.sh
 ```
